@@ -13,12 +13,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Unpack project
+      - name: Unpack newest project zip
         run: |
+          newest=""
+          newest_time=0
           for f in *.zip; do
-            unzip -o "$f"
+            t=$(git log -1 --format=%ct -- "$f")
+            t=${t:-0}
+            if [ "$t" -gt "$newest_time" ]; then
+              newest="$f"
+              newest_time="$t"
+            fi
           done
+          echo "Using: $newest"
+          unzip -o "$newest"
 
       - uses: actions/setup-java@v4
         with:
